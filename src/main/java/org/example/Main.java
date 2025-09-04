@@ -1,154 +1,190 @@
 package org.example;
 
-import org.example.dao.ContatoDao;
-import org.example.model.Contato;
+import com.listatelefonica.dao.ContatoDao;
+import com.listatelefonica.model.Contato;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
+// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-
-
-
+    public static Scanner sc = new Scanner(System.in);
     public static void main(String[] args) {
-
         inicio();
-
-
     }
 
     public static void inicio(){
-        Scanner input = new Scanner(System.in);
-
         boolean sair = false;
-
-        System.out.println("================ Lista Telefonica ====================\n" +
-                "1. Cadastrar contato: \n" +
-                "2. Listar todos os contatos cadastrados.\n" +
-                "3. Buscar contato por nome.\n" +
-                "4. Atualizar dados de um contato \n" +
-                "5. Remover contato\n" +
-                "6. Sair do sistema");
-
-            int opcao = input.nextInt();
-            input.nextLine();
+        System.out.println("||====================================||");
+        System.out.println("||           Lista Telefonica         ||");
+        System.out.println("||====================================||");
+        System.out.println("|| 1. Cadastrar contato               ||");
+        System.out.println("|| 2. Listar os contatos              ||");
+        System.out.println("|| 3. Buscar contato por nome         ||");
+        System.out.println("|| 4. Atualizar dados de um contato   ||");
+        System.out.println("|| 5. Remover contato                 ||");
+        System.out.println("|| 6. Sair do sistema                 ||");
+        System.out.println("||====================================||");
+        int opcao = sc.nextInt();
+        sc.nextLine();
 
         switch (opcao){
-
-            case 1:
-
-                CadastrarContato();
-                break;
-
-            case 2:
+            case 1 ->{
+                cadastrarContato();
+            }
+            case 2 ->{
                 listarContatos();
-
-                break;
-
-            case 3:
-                buscarContatoPorNome();
-                break;
-
-            case 4:
+            }
+            case 3 ->{
+                buscar();
+            }
+            case 4 ->{
                 atualizarContato();
-                break;
-
-            case 6:
+            }
+            case 5 ->{
+                removerContato();
+            }
+            case 6 ->{
                 sair = true;
-                break;
-
+            }
         }
-
-        if (!sair) {
+        if(!sair){
             inicio();
         }
     }
 
-    private static void atualizarContato() {
-
-        var dao = new ContatoDao();
-
-        try {
-            List<Contato> contatos = dao.listarContatos();
-        }catch(SQLException e){
-            System.out.println("Erro");
-        }
-        System.out.println("Digite o id do contato que deseja alterar: ");
+    public static void cadastrarContato(){
+        System.out.println("-- CADASTRAR CONTATO --");
+        inserirDados(1, 0);
     }
 
-
-    private static void buscarContatoPorNome() {
-
-        System.out.println("============  Buscar Contato por nome ===========");
-
-            List<Contato> contatos = new ArrayList<>();
-        for (Contato contato : contatos){
-            System.out.println("==========================================");
-            System.out.println("ID: "+ contato.getId());
-            System.out.println("NOME: "+ contato.getNome());
-            System.out.println("TELEFONE: "+ contato.getTelefone());
-            System.out.println("EMAIL: "+ contato.getEmail());
-            System.out.println("OBSEVAÇÂO: "+ contato.getObservacao());
-            System.out.println("==========================================");
-
-        }
-
-    }
-
-    private static void listarContatos() {
-        System.out.println("================== Contatos ====================");
+    public static void listarContatos(){
+        System.out.println("-- CONTATOS CADASTRADOS --");
         var dao = new ContatoDao();
-
         try{
-
             List<Contato> contatos = dao.listarContatos();
 
-            for (Contato contato : contatos){
-                System.out.println("==========================================");
-                System.out.println("ID: "+ contato.getId());
-                System.out.println("NOME: "+ contato.getNome());
-                System.out.println("TELEFONE: "+ contato.getTelefone());
-                System.out.println("EMAIL: "+ contato.getEmail());
-                System.out.println("OBSEVAÇÂO: "+ contato.getObservacao());
-                System.out.println("==========================================");
-
-            }
-
-        }catch (SQLException e){
-            System.out.println("Erro conexao");
-
-        }
-
-    }
-
-    public static void CadastrarContato(){
-        Scanner input = new Scanner(System.in);
-
-        System.out.println("    ====   Cadastro de Contato  ====    ");
-        System.out.println("Digite o nome do Contato: ");
-        String nome = input.nextLine();
-
-        System.out.println("Digite o telefone do Contato: ");
-        String telefone = input.nextLine();
-
-        System.out.println("Digite o email do Contato: ");
-        String email = input.nextLine();
-
-        System.out.println("Digite o observação do Contato: ");
-        String observacao = input.nextLine();
-
-        var contato =  new Contato(nome, telefone, email, observacao);
-        var dao = new ContatoDao();
-
-        try{
-            dao.inserirContato(contato);
-            System.out.println("Contato inserido");
-        }catch (SQLException e){
-            System.out.println("Erro ");
+            List<Integer> idContatos = exibirContatos(contatos);
+        } catch (SQLException e){
             e.printStackTrace();
+        }
+    }
 
+    public static void buscar(){
+        System.out.println("-- BUSCAR CONTATO POR NOME --");
+        System.out.println("Nome do contato:");
+        String nome = sc.nextLine();
+
+        var dao = new ContatoDao();
+        try{
+            List<Contato> contatos = dao.buscarContato(nome);
+
+            List<Integer> idContatos = exibirContatos(contatos);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void atualizarContato(){
+        System.out.println("-- ATUALIZAR CONTATO --");
+        List<Integer> idContatos = new ArrayList<>();
+        List<Contato> contatos = new ArrayList<>();
+        var dao = new ContatoDao();
+        try{
+            contatos = dao.listarContatos();
+            idContatos = exibirContatos(contatos);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        System.out.println("||====================================||");
+        System.out.println("Digite o ID do contato para edição:");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        if(idContatos.contains(id)){
+            inserirDados(2, id);
+        } else {
+            System.out.println("Opção inválida!");
+            atualizarContato();
+        }
+    }
+
+    public static void removerContato(){
+        System.out.println("-- REMOVER CONTATO --");
+        var dao = new ContatoDao();
+        List<Integer> idContatos = new ArrayList<>();
+        List<Contato> contatos = new ArrayList<>();
+        try{
+            contatos = dao.listarContatos();
+            idContatos = exibirContatos(contatos);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        System.out.println("||====================================||");
+        System.out.println("\nDigite o ID do contato para remoção:");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        if(idContatos.contains(id)){
+            try{
+                dao.removerContato(id);
+                System.out.println("\nContato removido com sucesso.");
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static List<Integer> exibirContatos(List<Contato> contatos){
+        List<Integer> idContatos = new ArrayList<>();
+        for(Contato contato : contatos){
+            System.out.println("\n---------------------------------------");
+            System.out.println("ID: " + contato.getId());
+            System.out.println("Nome: " + contato.getNome());
+            System.out.println("Telefone: " + contato.getTelefone());
+            System.out.println("Email: " + contato.getEmail());
+            System.out.println("Observação: " + contato.getObservacao());
+
+            idContatos.add(contato.getId());
+        }
+        return idContatos;
+    }
+
+    public static void inserirDados(int opcao, int id){
+        var dao = new ContatoDao();
+        System.out.println("Nome do contato:");
+        String nome = sc.nextLine();
+
+        System.out.println("Telefone do contato:");
+        String telefone = sc.nextLine();
+
+        System.out.println("Email do contato:");
+        String email = sc.nextLine();
+
+        System.out.println("Observação:");
+        String observacao = sc.nextLine();
+
+        switch (opcao){
+            case 1 ->{
+                try{
+                    var contato = new Contato(nome, telefone, email, observacao);
+                    dao.inserirContato(contato);
+                    System.out.println("Contato inserido com sucesso!");
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
+            case 2 ->{
+                try{
+                    var contato = new Contato(id, nome, telefone, email, observacao);
+                    dao.atualizarContato(contato);
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
